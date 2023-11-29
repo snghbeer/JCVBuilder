@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resume</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { text-transform: capitalize; border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        td:first-child, th:first-child {
+            text-transform: capitalize;
+        }
+    </style>
+</head>
+<body>
+<section>
+    <h3 id="fullName">$fname</h3>
+    <p id="birthDate">$bdate</p>
+    <p id="email">$mail</p>
+    <p id="countryphone">
+        <span>$country</span>
+        <span> </span>
+        <span>$phone</span>
+    </p>
+</section>
+<section id="experience">
+    <h3>Professional experience</h3>
+    $experience
+</section>
+<section id="skills">
+    $skills
+</section>
+</body>
+</html>
