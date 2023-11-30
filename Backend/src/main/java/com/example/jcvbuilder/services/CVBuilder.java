@@ -3,6 +3,7 @@ package com.example.jcvbuilder.services;
 import com.example.jcvbuilder.models.DTO.CVPayload;
 import com.example.jcvbuilder.models.DTO.Experience;
 import com.example.jcvbuilder.models.DTO.Skill;
+import com.example.jcvbuilder.models.DTO.SkillCategory;
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -48,7 +49,7 @@ public class CVBuilder {
     public String generateSillsHTML(CVPayload data){
         StringBuilder htmlBuilder = new StringBuilder();
 
-        for (Skill aSkill : data.skills) {
+        for (SkillCategory aSkill : data.skills) {
             htmlBuilder.append("<h3>").append(String.format("%s skills", aSkill.title)).append("</h3>");
             htmlBuilder.append("<table>")
                     .append("<tr><th>Skill</th><th>Level</th></tr>");

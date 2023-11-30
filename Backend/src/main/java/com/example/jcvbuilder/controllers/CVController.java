@@ -1,5 +1,6 @@
 package com.example.jcvbuilder.controllers;
 import com.example.jcvbuilder.models.DTO.CVPayload;
+import com.example.jcvbuilder.models.DTO.SkillCategory;
 import com.example.jcvbuilder.models.DTO.UserDTO;
 import com.example.jcvbuilder.models.User;
 import com.example.jcvbuilder.services.CVBuilder;
@@ -15,14 +16,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import com.example.jcvbuilder.services.PDFReader;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -31,19 +38,48 @@ import java.util.concurrent.CompletableFuture;
 public class CVController {
     JDBCService dbService;
     CVBuilder cvBuilder;
+    PDFReader myReader;
 
     @Autowired
     public CVController(JDBCService dbService) {
         this.dbService = dbService;
         this.cvBuilder = new CVBuilder();
+        this.myReader =  new PDFReader();
     }
 
+   /* @Async
     @GetMapping("/analyze")
-    public String analyzeCV() {
-        PDFReader myReader = new PDFReader("src/main/resources/static/Cv_Jean_NL.pdf");
-        String content = myReader.readContent();
-        return myReader.extractSkills(content);
+    public CompletableFuture<String> analyzeCV() {
+        String path = "src/main/resources/static/Cv_Jean_NL.pdf";
+        return CompletableFuture.completedFuture(this.myReader.extractSkills(path));
+    }*/
+
+    @PostMapping("/analyze")
+    public CompletableFuture<?> uploadFile(@RequestParam("file") MultipartFile file) {
+        if (!file.getContentType().equals("application/pdf")) {
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Only PDF files are accepted"));
+        }
+
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        Path path = Paths.get("uploads/" + fileName);
+        try {
+            if (!Files.exists(path.getParent())) {
+                Files.createDirectories(path.getParent());
+            }
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            List<SkillCategory> skillCategories = this.myReader.extractSkills(path.toString());
+
+            //now let's analyze the cv
+            return CompletableFuture.completedFuture(ResponseEntity.ok(skillCategories));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        }
+        //return ResponseEntity.ok("File uploaded successfully");
     }
+
+
 
     @GetMapping("/login")
     public ResponseEntity<String> getLoginPage() {

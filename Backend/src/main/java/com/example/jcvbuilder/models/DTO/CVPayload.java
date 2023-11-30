@@ -9,7 +9,7 @@ public class CVPayload {
     public String country;
     public String birthDate;
     public ArrayList<Experience> experience;
-    public ArrayList<Skill> skills;
+    public ArrayList<SkillCategory> skills;
 }
 
 
